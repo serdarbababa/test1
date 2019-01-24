@@ -6,7 +6,10 @@ import networkx as nx
 import pandas as pd
 import seaborn as sns
 import random
-from Veri import Veri  
+from Veri import Veri
+import matplotlib.pyplot as plt
+import networkx as nx
+
 
 
 
@@ -102,6 +105,20 @@ class BaseStructure:
                     data.append(k)
             return data
         ################################################
+
+        def agCizdir(self,title = "Tree structure", short=False):
+            plt.rcParams['figure.figsize'] = [15, 10]
+            #labels = dict((n, round(d['value'], 2)) for n, d in self.agac.nodes(data=True))
+            labels = dict((n, d['value']) for n, d in self.agac.nodes(data=True))
+            # pos=nx.graphviz_layout(GG, prog='dot')
+            #pos = graphviz_layout(self.agac, prog='dot')
+            # nx.spring_layout(GG)
+            pos = nx.spring_layout(self.agac)
+
+            plt.title(title +" node values")
+            nx.draw_networkx(self.agac, pos=pos, arrows=True, with_labels=True, labels=labels)
+            plt.show()
+
         def plotGraph(self,title = "Tree structure", short=False):
             plt.rcParams['figure.figsize'] = [15, 10]
             #labels = dict((n, round(d['value'], 2)) for n, d in self.agac.nodes(data=True))

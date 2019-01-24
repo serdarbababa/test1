@@ -25,7 +25,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../modules'))
 sys.path.append(os.path.abspath(os.getcwd() + '/test1/test1/modules'))
 
-
+import re
 from BaseStructure import BaseStructure
 from Components import Abstract, Context1, Context2, Actuator, Spektron
 from Veri import Veri
@@ -70,13 +70,15 @@ for i,f in enumerate(x):
         print("number of sentences = ",len(lines))
     print(lines[:10])
     for j in range(10):
-        print(lines[j].lower().split(),)
+        #print(lines[j].lower().split(),)
         kelimeler = lines[j].lower().split()
         if(len(kelimeler)>0):
             for k,harfler  in enumerate(kelimeler):
-                agac.addBranch(list(harfler))
-
-agac.plotGraph()
+                kelime = re.sub(r'[^a-zA-Z ]', '', harfler)
+                print(kelime)
+                agac.addBranch(list(kelime))
+    break
+agac.agCizdir()
 
     #break
 
