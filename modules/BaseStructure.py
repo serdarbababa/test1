@@ -104,7 +104,8 @@ class BaseStructure:
         ################################################
         def plotGraph(self,title = "Tree structure", short=False):
             plt.rcParams['figure.figsize'] = [15, 10]
-            labels = dict((n, round(d['value'], 2)) for n, d in self.agac.nodes(data=True))
+            #labels = dict((n, round(d['value'], 2)) for n, d in self.agac.nodes(data=True))
+            labels = dict((n, d['value']) for n, d in self.agac.nodes(data=True))
             # pos=nx.graphviz_layout(GG, prog='dot')
             pos = graphviz_layout(self.agac, prog='dot')
             # nx.spring_layout(GG)

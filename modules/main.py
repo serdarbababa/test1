@@ -219,9 +219,4 @@ calistirma()
 #abstract_output = abstract.learnSymbol(symbol,True)
 
 
-a=[]
-for i in range(16):
-    a.append(2**i)
-#plt.plot(a)
-#plt.show()
 

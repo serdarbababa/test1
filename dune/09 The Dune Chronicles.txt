@@ -1,4 +1,4 @@
- Dune
+﻿ Dune
 
 
 halftitle
@@ -89,8 +89,7 @@ Dune canvas. This includes our dedicated agents and staff, Robert Gottlieb, John
 Whalen, Matt Bialer, and Kate Scherler. Our American and U.K. publishers have shared our vision and
 
 
- file:///G|/Program%20Files/eMule/Incoming/corrin.html (2 of 466) [12/30/2004 11:57:11 PM]
- Dune
+
 
 have kept all matters of production and promotion on track—thanks especially to Tom Doherty, Carolyn
 Caughey, Linda Quinton, and Paul Stevens. Our extraordinary editor, Pat LoBrutto, has tended to our
