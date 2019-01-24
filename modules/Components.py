@@ -18,7 +18,7 @@ class Abstract(BaseStructure):
 
 
     def learnSymbol(self, raw_data,verbose):
-        qdata = self.preprocess(raw_data)
+        qdata = self.ppreprocess(raw_data)
 
         if (verbose):
             print("preprocessed data: ", qdata)
@@ -55,6 +55,12 @@ class Abstract(BaseStructure):
         c = (self.v.getWaveletCoefs(symbol_data))
         # print(c)
         quantized_input = self.v.quantize(c, len_of_data=self.windowLength)
+        return quantized_input
+
+    def ppreprocess(self, data_to_quantize):
+        #c = (self.v.getWaveletCoefs(symbol_data))
+        # print(c)
+        quantized_input = self.v.quantize(data_to_quantize, len_of_data=self.windowLength)
         return quantized_input
 
 class Context1(BaseStructure):
@@ -104,7 +110,10 @@ class Context2(BaseStructure):
                 else:
                     return None
         nei = list(self.agac.neighbors(poz))
-        poz = nei[0]
+        if(len(nei)==0):
+            return None
+        else:
+            poz = nei[0]
 
         return self.agac.node[poz]['value']
 
@@ -168,9 +177,10 @@ class Spektron:
         self.actuator = Actuator(windowLength = abstractWindowLength +1)
         self.ConnInputBuffer=[]
         self.ConnInputBufferSize = 5
-
+        self.previousConnInputBuffer = []
     def displaySpektron(self):
         self.v.displaySymbols()
+        return
         self.abstract.plotGraph(title="Abstract", short=True)
         self.context1.plotGraph(title="Context1", short=True)
         self.context2.plotGraph(title="Context2", short=True)
@@ -187,7 +197,7 @@ class Spektron:
       print("")
 
     def oneBeat(self, symbol = None, verbose=False):
-        if verbose: print("One Beat ", end="")
+        if verbose: print("One Beat " ,)
         if not symbol:
             symbol = self.v.genInstantSymbol(verbose)
         if verbose: print("Input Symbol = ", symbol)
@@ -204,7 +214,7 @@ class Spektron:
         if verbose : print("Actuator Branch ID", self.actuator.checkBranch(context1_output))
 
     def oneComplexBeat(self, symbol,  getOutput= False , verbose=False):
-        if verbose: print("One Complex Beat ",end="")
+        if verbose: print("One Complex Beat ", )
 
         #symbol = self.v.genInstantSymbol(verbose)
         if verbose: print("Input Symbol = " , symbol)
@@ -235,7 +245,7 @@ class Spektron:
         #print("output branch IDs ",self.actuator.getBranchIDsGivenStartNodeValue(context2_output))
 
     def checkOperation(self, symbol, getOutput= False , verbose=False):
-        if verbose: print("One Complex Beat ",end="")
+        if verbose: print("One Complex Beat ", )
 
         #symbol = self.v.genInstantSymbol(verbose)
         if verbose: print("Input Symbol = " , symbol)
@@ -264,3 +274,43 @@ class Spektron:
         self.ConnInputBuffer = []
         if getOutput : print("output branch values ",self.actuator.getBranchGivenStartNodeValue(context2_output_value))
         #print("output branch IDs ",self.actuator.getBranchIDsGivenStartNodeValue(context2_output))
+
+    def checkOperation1(self, symbol, getOutput=False, verbose=False):
+        if verbose: print("One Complex Beat ", )
+
+        # symbol = self.v.genInstantSymbol(verbose)
+        if verbose: print("Input Symbol = ", symbol)
+
+        abstract_output = self.abstract.learnSymbol(symbol, verbose)
+
+        if verbose: print(self.abstract.checkBranch(symbol))
+
+        context1_output = self.context1.learnSymbol([abstract_output], verbose)
+        if verbose: print(self.context1.checkBranch([abstract_output]))
+
+        self.ConnInputBuffer.append(context1_output)
+        if (len(self.ConnInputBuffer) < self.ConnInputBufferSize - 1):
+            return None
+        if (self.ConnInputBuffer == self.previousConnInputBuffer):
+            print("wrong prediction, predict again ")
+            self.ConnInputBuffer.append(random.randint(0, 15))
+            context2_output = self.context2.addBranch(self.ConnInputBuffer)
+            context2_output_value = self.context2.checkShortBranch(self.ConnInputBuffer)
+        else:
+            if getOutput: print("Operation Context 2 Input ", self.ConnInputBuffer)
+
+            context2_output = self.context2.addBranch(self.ConnInputBuffer)
+            # dbid = self.getBranchId(self.ConnInputBuffer, self.ConnTree, self.counterAbstract, WL=5, overlap=0)
+            context2_output_value = self.context2.checkShortBranch(self.ConnInputBuffer)
+            if(context2_output_value==None):
+                self.ConnInputBuffer.append(random.randint(0, 15))
+                context2_output = self.context2.addBranch(self.ConnInputBuffer)
+            print (self.context2.checkBranch(self.ConnInputBuffer))
+            self.previousConnInputBuffer= self.ConnInputBuffer
+        # actuator_output = self.actuator.learnSymbol(context2_output, verbose)
+        if verbose: print(self.actuator.checkBranch(context2_output_value))
+        self.ConnInputBuffer = []
+        print("output branch values ", self.actuator.getBranchGivenStartNodeValue(context2_output_value))
+        # print("output branch IDs ",self.actuator.getBranchIDsGivenStartNodeValue(context2_output))
+
+

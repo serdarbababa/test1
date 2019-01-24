@@ -74,7 +74,7 @@ class Veri():
         symbolSet = []
 
         for i in range(operations_count):
-            if (verbose): print(i, end="\t")
+            if (verbose): print(i, "\t",)
             a = self.genData(["uniform", 0, 10, 4])
             a = [int(x) for x in a]
             if (Test):
@@ -122,17 +122,19 @@ class Veri():
     ################################################
     def quantize(self, input_data, len_of_data, verbose=False):
         borders = [-200, -100, -50, 0, 50, 100, 200]
+        borders = [-6000, -4000, -2000, -1000, -500, -100, -50, 0, 50, 100, 500, 1000, 2000, 4000, 6000]
+        #borders = [-100, -50, -30, -20, -10, -5, -3, 0, 3, 5, 10, 20, 30, 50, 100]
         sig = []
         if (verbose):
             print(input_data)
         for j in range(int(len(input_data))):
-            output = 7
-            for k in range(7):
+            output = len(borders)
+            for k in range(len(borders)):
                 if (input_data[j] < borders[k]):
                     output = k
                     break
             if verbose:
-                print(output, end=" ")
+                print(output, " ",)
             sig.append(output)
         if verbose:
             print()
@@ -146,7 +148,8 @@ class Veri():
                 break
         if (verbose):
             print("operation symbols")
-            [print(i, symbol_based[i]) for i in range(len(symbol_based))]
+            for i in range(len(symbol_based)):
+                print(i, symbol_based[i])
             print()
         return symbol_based
 
@@ -162,9 +165,10 @@ class Veri():
     def displaySymbols(self):
         symbols_correspondence = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "-", "*", "/", "=", "?"]
         print("indice", "symbol", "pattern")
-        [print(i, "\t\t", symbols_correspondence[i], "\t\t", self.symbols[i]) for i in range(len(self.symbols))]
+        for i in range(len(self.symbols)):
+            print(i,  symbols_correspondence[i],    self.symbols[i])
 
-    ################################################
+            ################################################
     def __init__(self):
         self.symbols = self.genSample(16)
 
