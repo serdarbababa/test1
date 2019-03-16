@@ -7,8 +7,8 @@ import pandas as pd
 import seaborn as sns
 import random
 
-from Veri  import Veri 
-from BaseStructure import BaseStructure 
+from modules.Veri  import Veri
+from modules.BaseStructure import BaseStructure
 
 class Abstract(BaseStructure):
     def __init__(self, windowLength, offset):

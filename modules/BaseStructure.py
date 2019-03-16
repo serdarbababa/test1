@@ -6,7 +6,7 @@ import networkx as nx
 import pandas as pd
 import seaborn as sns
 import random
-from Veri import Veri
+from modules.Veri import Veri
 import matplotlib.pyplot as plt
 import networkx as nx
 
