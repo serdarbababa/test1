@@ -170,7 +170,7 @@ class Actuator(BaseStructure):
 class Spektron:
 
     def __init__(self,abstractWindowLength=8 ):
-        self.v = Veri()
+        self.v = Veri(abstractWindowLength)
         self.abstract = Abstract(abstractWindowLength , offset= 0)
         self.context1 = Context1()
         self.context2 = Context2()
@@ -178,9 +178,10 @@ class Spektron:
         self.ConnInputBuffer=[]
         self.ConnInputBufferSize = 5
         self.previousConnInputBuffer = []
-    def displaySpektron(self):
+    def displaySpektron(self, jump = True):
         self.v.displaySymbols()
-        return
+        if jump:
+            return
         self.abstract.plotGraph(title="Abstract", short=True)
         self.context1.plotGraph(title="Context1", short=True)
         self.context2.plotGraph(title="Context2", short=True)

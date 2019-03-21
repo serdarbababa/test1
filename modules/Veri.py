@@ -35,10 +35,10 @@ class Veri():
         if verbose: print("generate sample data")
         signals = []
         for i in range(signalCount):
-            a = self.genData(["normal", 100, 100, 8])
+            a = self.genData(["normal", 100, 100, self.sample_len])
             # print(a)
             sig = []
-            for j in range(8):
+            for j in range(self.sample_len):
                 sig.append(int(a[j]))
             signals.append(sig)
         for i in range(signalCount):
@@ -169,7 +169,9 @@ class Veri():
             print(i,  symbols_correspondence[i],    self.symbols[i])
 
             ################################################
-    def __init__(self):
+    def __init__(self,sample_len=8):
+        self.sample_len = sample_len
         self.symbols = self.genSample(16)
+
 
 

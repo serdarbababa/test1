@@ -60,25 +60,26 @@ def controlArrows():
 
     screen.exitonclick()
 
-
-
-
+controlArrows()
 
 from modules.Components import Abstract, Context1, Context2, Actuator, Spektron
 
+#initialize Spektron
+spek= Spektron()
+spek.displaySpektron()
 
 
-ops = generateOperations(500, Test=False, verbose=True)
-# print((ops))
+#train with 1000 operations
+for i in range(1000):
+    spek.oneBeat(verbose=False)
+print()
 
-decodedOps = decodeOperationsDeeper(input_data=ops, len_data=len(ops), qsignals=quantize(symbols, len_of_data=4))
+# Generate a Sample Operation
+operations= spek.getInstantOperationInput()
+[print(i, operations[i]) for i in range(len(operations))]
 
-# GG,counter = train_tree( mergeList(mergeList(decodedOps)), GG, counter , WL, overlap)
-# print(decodedOps)
 
-ids = getBranchId(mergeList(mergeList(decodedOps)), GG, counter, 8, overlap)
+# check the operation
+for count, item in enumerate(operations):
+    spek.oneBeat(symbol=item, verbose=True)
 
-print(ids)
-ops = mergeList(ops)
-
-#controlArrows()
