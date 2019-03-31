@@ -83,3 +83,4 @@ operations= spek.getInstantOperationInput()
 for count, item in enumerate(operations):
     spek.oneBeat(symbol=item, verbose=True)
 
+
