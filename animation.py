@@ -60,7 +60,7 @@ def controlArrows():
 
     screen.exitonclick()
 
-controlArrows()
+#controlArrows()
 
 from modules.Components import Abstract, Context1, Context2, Actuator, Spektron
 
