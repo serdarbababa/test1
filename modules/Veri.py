@@ -8,7 +8,6 @@ import seaborn as sns
 import random
 
 
-
 class Veri():
     ################################################
     def genData(self, param, show=False):
@@ -26,10 +25,12 @@ class Veri():
             count, bins, ignored = plt.hist(s, 14, density=True)
         return a
 
-    def genInstantSymbol(self, verbose =False):
-        x = self.symbols[ random.randint(0, 15)]
+    def genInstantSymbol(self, verbose=False):
+        x = self.symbols[random.randint(0, 15)]
+        #x = self.symbols[random.randint(0, 15)]
         if verbose: print(x)
         return x
+
     ################################################
     def genSample(self, signalCount, verbose=False):
         if verbose: print("generate sample data")
@@ -39,6 +40,20 @@ class Veri():
             # print(a)
             sig = []
             for j in range(self.sample_len):
+                sig.append(int(a[j]))
+            signals.append(sig)
+        for i in range(signalCount):
+            if verbose: print(signals[i])
+        return signals
+    def genVarLenSample(self, signalCount, verbose=False):
+        if verbose: print("generate sample data")
+        signals = []
+        for i in range(signalCount):
+            sample_length = random.randint(self.sample_len, self.sample_len*3)
+            a = self.genData(["normal", 100, 100, sample_length])
+            # print(a)
+            sig = []
+            for j in range(sample_length):
                 sig.append(int(a[j]))
             signals.append(sig)
         for i in range(signalCount):
@@ -74,7 +89,7 @@ class Veri():
         symbolSet = []
 
         for i in range(operations_count):
-            if (verbose): print(i, "\t",)
+            if (verbose): print(i, "\t", )
             a = self.genData(["uniform", 0, 10, 4])
             a = [int(x) for x in a]
             if (Test):
@@ -123,7 +138,7 @@ class Veri():
     def quantize(self, input_data, len_of_data, verbose=False):
         borders = [-200, -100, -50, 0, 50, 100, 200]
         borders = [-6000, -4000, -2000, -1000, -500, -100, -50, 0, 50, 100, 500, 1000, 2000, 4000, 6000]
-        #borders = [-100, -50, -30, -20, -10, -5, -3, 0, 3, 5, 10, 20, 30, 50, 100]
+        # borders = [-100, -50, -30, -20, -10, -5, -3, 0, 3, 5, 10, 20, 30, 50, 100]
         sig = []
         if (verbose):
             print(input_data)
@@ -134,7 +149,7 @@ class Veri():
                     output = k
                     break
             if verbose:
-                print(output, " ",)
+                print(output, " ", )
             sig.append(output)
         if verbose:
             print()
@@ -144,7 +159,7 @@ class Veri():
     def generateInputData(self, op_count, verbose=False):
         for i in range(10):
             encoded, symbol_based = self.generateOperationsSymbols(op_count, False, verbose)
-            if len(symbol_based)>0:
+            if len(symbol_based) > 0:
                 break
         if (verbose):
             print("operation symbols")
@@ -166,12 +181,11 @@ class Veri():
         symbols_correspondence = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "-", "*", "/", "=", "?"]
         print("indice", "symbol", "pattern")
         for i in range(len(self.symbols)):
-            print(i,  symbols_correspondence[i],    self.symbols[i])
+            print(i, symbols_correspondence[i], self.symbols[i])
 
             ################################################
-    def __init__(self,sample_len=8):
+
+    def __init__(self, sample_len=8):
         self.sample_len = sample_len
         self.symbols = self.genSample(16)
-
-
-
+        #self.symbols = self.genVarLenSample(16)
