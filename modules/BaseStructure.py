@@ -125,9 +125,9 @@ class BaseStructure:
         plt.rcParams['figure.figsize'] = [15, 10]
         # labels = dict((n, round(d['value'], 2)) for n, d in self.agac.nodes(data=True))
         labels = dict((n, d['value']) for n, d in self.agac.nodes(data=True))
-        # pos=nx.graphviz_layout(GG, prog='dot')
-        pos = graphviz_layout(self.agac, prog='dot')
-        # nx.spring_layout(GG)
+        #pos=nx.graphviz_layout(GG, prog='dot')
+        #pos = graphviz_layout(self.agac, prog='dot')
+       # pos = nx.spring_layout(GG)
 
         plt.title(title + " node values")
         nx.draw_networkx(self.agac, pos=pos, arrows=True, with_labels=True, labels=labels)

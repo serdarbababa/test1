@@ -11,6 +11,7 @@ import random
 class Veri():
     ################################################
     def genData(self, param, show=False):
+        #print(param)
         a = []
         if param[0] == "normal":
             mu, sigma, s = param[1], param[2], param[3]
@@ -27,9 +28,34 @@ class Veri():
 
     def genInstantSymbol(self, verbose=False):
         x = self.symbols[random.randint(0, 15)]
-        #x = self.symbols[random.randint(0, 15)]
+        # x = self.symbols[random.randint(0, 15)]
         if verbose: print(x)
         return x
+
+    ##################### new functions#########################33
+    def predefinedSymbols(self):
+        sample = {}
+        sample["kare"] = {"p": 0.2, "val": [0, 1, 1, 0]}
+        sample["ucgen"] = {"p": 0.1, "val": [0, 0.25, 0.5, 0.75, 1, 0.75, 0.5, 0.25]}
+        sample["null"] = {"p": 0.3, "val": [0, 0, 0, 0]}
+        sample["sin"] = {"p": 0.3, "val": [0, 0.5, 1, 0.5, 0, -0.5, -1, -0.5]}
+        sample["cos"] = {"p": 0.1, "val":   [1, 0.5, 0, -0.5, -1, -0.5, 0, 0.5]}
+        return sample
+
+    def genSignalWithSimpleSymbols(self, symbolCountInSignal=100, add_nulls = False, verbose = False):
+        self.symbols = self.predefinedSymbols()
+        #print(len(self.symbols))
+        names = list(self.symbols.keys())
+        samples = self.genData(["uniform", 0, len(self.symbols), symbolCountInSignal]).astype(int)
+        #print("sample = ",samples)
+        signal = []
+        for s in samples:
+            if verbose:
+                print( names[s],self.symbols[names[s]]["val"])
+            signal = signal + self.symbols[names[s]]["val"]
+            if add_nulls:
+                signal = signal + self.symbols["null"]["val"]
+        return signal
 
     ################################################
     def genSample(self, signalCount, verbose=False):
@@ -45,11 +71,12 @@ class Veri():
         for i in range(signalCount):
             if verbose: print(signals[i])
         return signals
+
     def genVarLenSample(self, signalCount, verbose=False):
         if verbose: print("generate sample data")
         signals = []
         for i in range(signalCount):
-            sample_length = random.randint(self.sample_len, self.sample_len*3)
+            sample_length = random.randint(self.sample_len, self.sample_len * 3)
             a = self.genData(["normal", 100, 100, sample_length])
             # print(a)
             sig = []
@@ -81,6 +108,7 @@ class Veri():
         girdi = np.array(input_data)  # np.array([1,2,3,4,5,6,7,8])*1
         coeff = wavedec(girdi, 'haar', level=int(np.log2(len(girdi))))
         coefs = (self.mergeList(coeff))
+        coefs = np.round(coefs, decimals=2)
         return coefs
 
     ################################################
@@ -186,6 +214,6 @@ class Veri():
             ################################################
 
     def __init__(self, sample_len=8):
-        self.sample_len = sample_len
-        self.symbols = self.genSample(16)
-        #self.symbols = self.genVarLenSample(16)
+        self.sample_len =""# sample_len
+        self.symbols =""# self.genSample(16)
+        # self.symbols = self.genVarLenSample(16)
