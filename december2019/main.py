@@ -12,7 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from numpy import dot
 from numpy.linalg import norm
-
+from networkx.drawing.nx_agraph import graphviz_layout
+import networkx as nx
 
 # veri= Veri()
 
@@ -239,7 +240,7 @@ class yapi:
             # print("data = ", temp, "w = ", w)
             self.learn(w)
 
-    def simple_test_run(self, symbol_count, data = [],use_predefined_signal=True, learn = True, add_nulls=True, verbose=False):
+    def simple_test_run(self, symbol_count, data = [],use_predefined_signal=True, signal_obye_rules = False, learn = True, add_nulls=True, getFrequencies =False, verbose=False):
         print("\ntest run ")
         windowSize = 4
         if use_predefined_signal:
@@ -251,10 +252,11 @@ class yapi:
                       1, 1, 0]
 
         else:
-            signal = self.veri.genSignalWithSimpleSymbols(symbol_count, add_nulls=add_nulls, verbose=verbose)
-        print("test signal = ", signal, "\n")
+            signal = self.veri.genSignalWithSimpleSymbols(symbol_count, add_nulls=add_nulls, signal_obey_rule=signal_obye_rules, verbose=verbose)
+        #print("test signal = ", signal, "\n")
         print("Test data branche ids")
         output_branch_ids = []
+
         for i in range(len(signal) - windowSize + 1):
             temp = signal[i:i + windowSize]
             if self.use_wavelet:
@@ -268,14 +270,18 @@ class yapi:
         if learn:
             self.learn_complex_symbols(output_branch_ids)
         else:
-            self.learn_complex_symbols(output_branch_ids)
+            return self.find_complex_symbols(output_branch_ids,getFrequencies)
+        return None
+
+    #def checkBranch(self,data):
+
 
     def learn_complex_symbols(self, data):
-        print("data: ", data)
+        #print("data: ", data)
 
         buffer = [0] * self.layer_count
 
-        for i, d in enumerate(data):
+        for j, d in enumerate(data):
             buffer.pop()
             buffer.insert(0, d)
 
@@ -288,15 +294,107 @@ class yapi:
                 else:
                     self.L[i].append(buffer[0:i + 1])
                     self.L_count[i].append(0)
+        return None
 
-    def find_complex_symbols(self, data):
+    def find_complex_symbols(self, data, get_frequencies= False):
         print("data: ", data)
         output = []
         for i in range(len(data)):
-            output.append( [])
+            output.append( [-1]*self.layer_count)
+
         buffer = [0] * self.layer_count
 
-        for i, d in enumerate(data):
+        for j, d in enumerate(data):
+            buffer.pop()
+            buffer.insert(0, d)
+
+            for i in range(self.layer_count):
+                if buffer[i] == 0:
+                    break
+                if buffer[0:i + 1] in self.L[i]:
+                    if get_frequencies:
+                        id = self.L[i].index(buffer[0:i + 1])
+                        output[j][i] = self.L_count[i][id]
+                    else:
+                        id = self.L[i].index(buffer[0:i + 1])
+                        output[j][i]=id
+
+
+                #else:
+                #    self.L[i].append(buffer[0:i + 1])
+                #    self.L_count[i].append(0)
+        return output
+
+
+    def learn_complex_symbols_V2(self, data):
+        print("data: ", data)
+        buffer = [] #* self.layer_count
+
+        for j, d in enumerate(data):
+
+            if d != 0 :
+                buffer.insert(0, d)
+            else:
+                i=len(buffer)-1
+                #print(len)
+                if buffer in self.L[i]:
+                    id = self.L[i].index(buffer)
+                    self.L_count[i][id] += 1
+                else:
+                    if len(buffer) > 0:
+                        self.L[i].append(buffer)
+                        self.L_count[i].append(0)
+                buffer = []
+
+        if len(buffer)>0:
+            i = len(buffer)-1
+            if buffer in self.L[i]:
+                id = self.L[i].index(buffer)
+                self.L_count[i][id] += 1
+            else:
+                self.L[i].append(buffer)
+                self.L_count[i].append(0)
+
+        return None
+
+    def find_complex_symbols_V2(self, data):
+        print("data: ", data)
+        output = []
+        print('data len = ', len(data))
+        for i in range(len(data)):
+            output.append( [-1]*self.layer_count)
+        buffer = []#[0] * self.layer_count
+
+        for j, d in enumerate(data):
+            if d != 0:
+                buffer.insert(0, d)
+            else:
+                if len(buffer)>0:
+                    i = len(buffer)-1
+                    if buffer in self.L[i]:
+                        id = self.L[i].index(buffer)
+                        output[j][i] = id
+                        print("found branch", j, i,buffer)
+                    else:
+                        print("unseen branch ",j,i, buffer)
+                    buffer = []
+        if len(buffer)>0:
+            i = len(buffer)-1
+            if buffer in self.L[i]:
+                id = self.L[i].index(buffer)
+                output[j][i] = id
+                print("found branch", j, i, id,  buffer)
+            else:
+                print("unseen branch ", j, i, buffer)
+
+        return output
+
+    def learn_complex_symbols_V1(self, data):
+        print("data: ", data)
+
+        buffer = [0] * self.layer_count
+
+        for j, d in enumerate(data):
             buffer.pop()
             buffer.insert(0, d)
 
@@ -305,10 +403,40 @@ class yapi:
                     break
                 if buffer[0:i + 1] in self.L[i]:
                     id = self.L[i].index(buffer[0:i + 1])
-
+                    self.L_count[i][id] += 1
                 else:
                     self.L[i].append(buffer[0:i + 1])
                     self.L_count[i].append(0)
+        return None
+
+    def find_complex_symbols_V1(self, data):
+        print("data: ", data)
+        output = []
+        for i in range(len(data)):
+            output.append( [-1]*self.layer_count)
+
+        buffer = [0] * self.layer_count
+
+        for j, d in enumerate(data):
+            buffer.pop()
+            buffer.insert(0, d)
+
+            for i in range(self.layer_count):
+                if buffer[i] == 0:
+                    break
+                if buffer[0:i + 1] in self.L[i]:
+                    id = self.L[i].index(buffer[0:i + 1])
+                    output[j][i]=id
+
+
+                #else:
+                #    self.L[i].append(buffer[0:i + 1])
+                #    self.L_count[i].append(0)
+        return output
+
+
+
+
 
     def display_complex_relations(self):
         for i in range(self.layer_count):
@@ -323,15 +451,28 @@ class yapi:
         for i, b in enumerate(self.branches):
             print(i, self.branche_freq[i], b)
 
+    def trim_branches(self, support):
+        for i in range(self.layer_count):
+            branches_to_delete = []
+            for j, d in enumerate(self.L[i]):
+                if self.L_count[i][j]<support:
+                    branches_to_delete.insert(0,j)
+            for b in branches_to_delete:
+                del self.L[i][b]
+                del self.L_count[i][b]
+        for i in range(self.layer_count):
+            for j, d in enumerate(self.L[i]):
+                self.L_count[i][j]=int(self.L_count[i][j]/2)
 
     def __init__(self):
+
         self.use_wavelet = False
         self.branches = []
         self.branche_freq = []
         self.start_index = 0
         self.veri = Veri()
 
-        self.layer_count = 10
+        self.layer_count = 15
         self.L = []
         self.L_count = []
         for i in range(self.layer_count):
@@ -466,12 +607,115 @@ def test3():
     y.simple_learning_run(symbol_count=100, use_predefined_signal=False, verbose=False)
 
     y.get_brach_status()
-    y.simple_test_run(symbol_count=100, use_predefined_signal=False, add_nulls=True, verbose=False)
-    y.simple_test_run(symbol_count=1000, use_predefined_signal=False, add_nulls=False, verbose=False)
+    for i in range(10):
+        y.simple_test_run(symbol_count=100, use_predefined_signal=False, add_nulls=True, verbose=False)
+        #y.trim_branches(support=5)
+        #y.display_complex_relations()
+        y.simple_test_run(symbol_count=500, use_predefined_signal=False, add_nulls=False, verbose=False, learn=True)
+        #y.display_complex_relations()
+        #y.trim_branches(support=5)
+    y.trim_branches(support=5)
     y.display_complex_relations()
 
-    data =  [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0]
+    data =  [ 0, 1, 1, 0, 0,  0.5, 1, 0.5, 0, -0.5, -1, -0.5, 0,  1, 1, 0, 0,  0.5, 1, 0.5, 0, -0.5, -1, -0.5, 0]#, 0, 0, 0, 0]
+    #data =  [0, 0, 0, 0, 0, 1, 1, 0,  0, 0.5, 1, 0.5, 0, -0.5, -1, -0.5, 0, 0, 0, 0]
 
-    y.simple_test_run(data = data, symbol_count=100, use_predefined_signal=True, learn = False, verbose=True )
+    output = y.simple_test_run(data = data, symbol_count=100, use_predefined_signal=True, learn = False, verbose=True )
+    for i in range(len(output)):
+        print(i,end= "\t")
 
-test3()
+        for j in range(len(output[i])):
+            print(output[i][j], end="  ")
+        print()
+
+def test4():
+    y = yapi()
+    y.getSymbols()
+
+    y.simple_learning_run(symbol_count=500, use_predefined_signal=False, verbose=False)
+
+    y.get_brach_status()
+    for i in range(10):
+        y.simple_test_run(symbol_count=1000, use_predefined_signal=False, add_nulls=True, verbose=False)
+        #y.trim_branches(support=50)
+        # y.display_complex_relations()
+        y.simple_test_run(symbol_count=1000, use_predefined_signal=False, add_nulls=False, verbose=False, learn=True)
+        #y.display_complex_relations()
+        y.trim_branches(support=50)
+    #y.trim_branches(support=5)
+    y.display_complex_relations()
+
+    data = [ 0, 0.25, 0.5, 0.75, 1, 0.75, 0.5, 0.25, 0, 0.25, 0.5, 0.75, 1, 0.75, 0.5, 0.25,  1, 1, 1, 1, 0, 0.5, 1, 0.5, 0, -0.5, -1, -0.5, 0, 1, 1, 0, 0, 0.5, 1, 0.5, 0, -0.5, -1, -0.5,
+            0 , 0, 0, 0, 0]
+    # data =  [0, 0, 0, 0, 0, 1, 1, 0,  0, 0.5, 1, 0.5, 0, -0.5, -1, -0.5, 0, 0, 0, 0]
+
+    output = y.simple_test_run(data=data, symbol_count=100, use_predefined_signal=True, learn=False, verbose=True)
+    index_of_minus_one = 0
+
+    complex_symbols = []
+
+    for i in range(len(output)):
+        if not -1 in output[i]:
+            index_of_minus_one = 0
+            print("symbol", i)
+            for j in range(len(output[i])):
+                print(output[i][j], end="  ")
+            print()
+        else:
+            if index_of_minus_one > output[i].index(-1):
+                index_of_minus_one = 0
+                print("symbol", i )
+                for j in range(len(output[i])):
+                    print(output[i - 1][j], end="  ")
+                print()
+            else:
+                index_of_minus_one = output[i].index(-1)
+    print()
+
+
+    for i in range(len(output)):
+        print(i, end="\t")
+
+        for j in range(len(output[i])):
+            print(output[i][j], end="  ")
+        print()
+    print()
+
+
+
+    output = y.simple_test_run(data=data, symbol_count=20, add_nulls=False,  use_predefined_signal=False, learn=False, getFrequencies=False, signal_obye_rules=True , verbose=True)
+    index_of_minus_one = 0
+
+    #agac = nx.DiGraph()
+    #agac.add_node(0, value=0, occurance_count=1, id=-1)
+    #agac.add_edge(poz, self.counter)
+
+
+    for i in range(len(output)):
+        if not  -1 in output[i]:
+            index_of_minus_one = 0
+            print("symbol",i)
+            for j in range(len(output[i])):
+                print(output[i ][j], end="  ")
+            print()
+        else:
+            if index_of_minus_one > output[i].index(-1):
+                index_of_minus_one = 0
+                print("symbol", i )
+                print("\t",end="")
+                for j in range(len(output[i])):
+                    print(output[i - 1][j], end="  ")
+                print()
+            else:
+                index_of_minus_one = output[i].index(-1)
+    print()
+
+    for i in range(len(output)):
+        print(i, end="\t")
+
+        for j in range(len(output[i])):
+            print(output[i][j], end="  ")
+        print()
+
+
+test4()
